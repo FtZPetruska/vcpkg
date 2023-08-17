@@ -1,5 +1,5 @@
 diff --git a/share/cmake/modules/FindExtPackages.cmake b/share/cmake/modules/FindExtPackages.cmake
-index 8787b87..f953ceb 100644
+index eab77983..1159215a 100644
 --- a/share/cmake/modules/FindExtPackages.cmake
 +++ b/share/cmake/modules/FindExtPackages.cmake
 @@ -26,15 +26,15 @@ set(CMAKE_FIND_PACKAGE_NO_SYSTEM_PACKAGE_REGISTRY ON CACHE BOOL
@@ -49,24 +49,26 @@ index 8787b87..f953ceb 100644
  
  if(OCIO_BUILD_OPENFX)
 diff --git a/src/OpenColorIO/CMakeLists.txt b/src/OpenColorIO/CMakeLists.txt
-index 034185d..b992bbc 100755
+index 91950467..cd8ee84f 100755
 --- a/src/OpenColorIO/CMakeLists.txt
 +++ b/src/OpenColorIO/CMakeLists.txt
-@@ -226,9 +226,9 @@ target_link_libraries(OpenColorIO
+@@ -226,10 +226,10 @@ target_link_libraries(OpenColorIO
          expat::expat
          ${OCIO_HALF_LIB}
          pystring::pystring
 -        sampleicc::sampleicc
 -        utils::from_chars
 -        utils::strings
+-        yaml-cpp
 +        "$<BUILD_INTERFACE:sampleicc::sampleicc>"
 +        "$<BUILD_INTERFACE:utils::from_chars>"
 +        "$<BUILD_INTERFACE:utils::strings>"
-         yaml-cpp
++        yaml-cpp::yaml-cpp
  )
  
+ if(APPLE)
 diff --git a/src/cmake/Config.cmake.in b/src/cmake/Config.cmake.in
-index eebb2c1..7147dc3 100644
+index eebb2c19..18257ca9 100644
 --- a/src/cmake/Config.cmake.in
 +++ b/src/cmake/Config.cmake.in
 @@ -2,4 +2,9 @@
