@@ -1,0 +1,25 @@
+diff --git a/tools/EurocDataset/CMakeLists.txt b/tools/EurocDataset/CMakeLists.txt
+index 4d0f04f1..cfe1e8c9 100644
+--- a/tools/EurocDataset/CMakeLists.txt
++++ b/tools/EurocDataset/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ 
+-FIND_PACKAGE(yaml-cpp QUIET)
++FIND_PACKAGE(yaml-cpp CONFIG QUIET)
+ 
+ IF(NOT yaml-cpp_FOUND)
+    find_package(PkgConfig QUIET)
+@@ -16,12 +16,11 @@ ENDIF(NOT yaml-cpp_FOUND)
+ IF(yaml-cpp_FOUND)
+ 
+ SET(INCLUDE_DIRS
+-    ${YAML_CPP_INCLUDE_DIRS}
++    ${YAML_CPP_INCLUDE_DIR}
+ )
+ 
+ SET(LIBRARIES
+ 	${YAML_CPP_LIBRARIES}
+-	yaml-cpp
+ )
+ 
+ INCLUDE_DIRECTORIES(${INCLUDE_DIRS} yaml-cpp)
