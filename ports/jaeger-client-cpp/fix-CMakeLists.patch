@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 53e4598..4220910 100644
+index c79e6a3..cf98aa6 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -60,7 +60,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
@@ -7,7 +7,7 @@ index 53e4598..4220910 100644
  
  hunter_add_package(thrift)
 -find_package(thrift ${hunter_config} REQUIRED)
-+find_package(Thrift CONFIG REQUIRED)
++find_package(thrift NAMES Thrift CONFIG REQUIRED)
  if(HUNTER_ENABLED)
    list(APPEND LIBS thrift::thrift_static)
  else()
@@ -20,6 +20,15 @@ index 53e4598..4220910 100644
    list(APPEND LIBS OpenTracing::opentracing)
    set(OPENTRACING_LIB OpenTracing::opentracing)
  else()
+@@ -101,7 +101,7 @@ if(JAEGERTRACING_WITH_YAML_CPP)
+   # Not `${hunter_config}` because yaml-cpp provides its own
+   # yaml-cpp-config.cmake file
+   find_package(yaml-cpp CONFIG REQUIRED)
+-  if(HUNTER_ENABLED)
++  if(TARGET yaml-cpp::yaml-cpp)
+       list(APPEND LIBS yaml-cpp::yaml-cpp)
+   else()
+       list(APPEND LIBS yaml-cpp)
 @@ -273,6 +273,9 @@ if(JAEGERTRACING_PLUGIN)
    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/export.map
      "{ global: OpenTracingMakeTracerFactory; local: *; };")
