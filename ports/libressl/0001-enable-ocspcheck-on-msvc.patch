@@ -1,71 +1,28 @@
 diff --git a/apps/ocspcheck/CMakeLists.txt b/apps/ocspcheck/CMakeLists.txt
-index 2dddb6e..fd35685 100644
+index 43eebdf..4886466 100644
 --- a/apps/ocspcheck/CMakeLists.txt
 +++ b/apps/ocspcheck/CMakeLists.txt
-@@ -1,5 +1,3 @@
+@@ -1,4 +1,3 @@
 -if(NOT MSVC)
--
+ 
  set(
  	OCSPCHECK_SRC
- 	http.c
-@@ -13,13 +11,27 @@ else()
-         set(OCSPCHECK_SRC ${OCSPCHECK_SRC} compat/memmem.c)
- endif()
+@@ -34,4 +33,15 @@ if(ENABLE_LIBRESSL_INSTALL)
+ 
+ endif(ENABLE_LIBRESSL_INSTALL)
  
 +check_function_exists(getopt HAVE_GETOPT)
 +if(HAVE_GETOPT)
-+	add_definitions(-DHAVE_GETOPT)
++	target_compile_definitions(ocspcheck PRIVATE HAVE_GETOPT)
 +else()
-+	set(GETOPT_SRC compat/getopt.c)
++	target_sources(ocspcheck compat/getopt.c)
++	target_include_directories(ocspcheck PRIVATE compat)
 +endif()
 +
 +check_function_exists(ftruncate HAVE_FTRUNCATE)
-+if(HAVE_FTRUNCATE)
-+	add_definitions(-DHAVE_FTRUNCATE)
-+else()
-+	set(FTRUNCATE_SRC compat/ftruncate.c)
-+endif()
-+
- if(NOT "${OPENSSLDIR}" STREQUAL "")
- 	add_definitions(-DDEFAULT_CA_FILE=\"${OPENSSLDIR}/cert.pem\")
- else()
- 	add_definitions(-DDEFAULT_CA_FILE=\"${CMAKE_INSTALL_PREFIX}/etc/ssl/cert.pem\")
++if(NOT HAVE_FTRUNCATE)
++	target_sources(ocspcheck ../tls/compat/ftruncate.c)
  endif()
- 
--add_executable(ocspcheck ${OCSPCHECK_SRC})
-+add_executable(ocspcheck ${OCSPCHECK_SRC} ${GETOPT_SRC} ${FTRUNCATE_SRC})
- target_include_directories(ocspcheck PUBLIC ../../include)
- target_include_directories(ocspcheck PRIVATE . ./compat ../../include/compat)
- target_link_libraries(ocspcheck tls ${OPENSSL_LIBS})
-@@ -29,5 +41,3 @@ if(ENABLE_LIBRESSL_INSTALL)
- 	install(FILES ocspcheck.8 DESTINATION ${CMAKE_INSTALL_MANDIR}/man8)
- 
- endif(ENABLE_LIBRESSL_INSTALL)
--
--endif()
-diff --git a/apps/ocspcheck/compat/ftruncate.c b/apps/ocspcheck/compat/ftruncate.c
-new file mode 100644
-index 0000000..e825e50
---- /dev/null
-+++ b/apps/ocspcheck/compat/ftruncate.c
-@@ -0,0 +1,17 @@
-+/*
-+ * Public domain
-+ *
-+ * Kinichiro Inoguchi <inoguchi@openbsd.org>
-+ */
-+
-+#ifdef _WIN32
-+
-+#include <unistd.h>
-+
-+int
-+ftruncate(int fd, off_t length)
-+{
-+	return _chsize(fd, length);
-+}
-+
-+#endif
 diff --git a/apps/ocspcheck/compat/getopt.c b/apps/ocspcheck/compat/getopt.c
 new file mode 100644
 index 0000000..ff05743
@@ -205,7 +162,7 @@ index 0000000..ff05743
 +}
 diff --git a/apps/ocspcheck/compat/getopt.h b/apps/ocspcheck/compat/getopt.h
 new file mode 100644
-index 0000000..ada142e
+index 0000000..da91df5
 --- /dev/null
 +++ b/apps/ocspcheck/compat/getopt.h
 @@ -0,0 +1,15 @@
@@ -224,24 +181,23 @@ index 0000000..ada142e
 +int getopt(int argc, char *const argv[], const char *optstring);
 +
 +#endif
-\ No newline at end of file
 diff --git a/apps/ocspcheck/ocspcheck.c b/apps/ocspcheck/ocspcheck.c
-index 551a8fa..c608578 100644
+index 516642b..775d6e1 100644
 --- a/apps/ocspcheck/ocspcheck.c
 +++ b/apps/ocspcheck/ocspcheck.c
-@@ -519,6 +519,10 @@ main(int argc, char **argv)
- 	ssize_t written, w;
- 	short port;
+@@ -38,6 +38,10 @@
+ 
+ #include "http.h"
  
 +#ifndef HAVE_GETOPT
 +#include "getopt.h"
 +#endif
 +
- 	while ((ch = getopt(argc, argv, "C:i:No:v")) != -1) {
- 		switch (ch) {
- 		case 'C':
+ #define MAXAGE_SEC (14*24*60*60)
+ #define JITTER_SEC (60)
+ #define OCSP_MAX_RESPONSE_SIZE (20480)
 diff --git a/include/compat/unistd.h b/include/compat/unistd.h
-index f521b94..f11db44 100644
+index 2583a6e..6569894 100644
 --- a/include/compat/unistd.h
 +++ b/include/compat/unistd.h
 @@ -23,6 +23,7 @@ ssize_t pwrite(int d, const void *buf, size_t nbytes, off_t offset);

@@ -9,7 +9,7 @@ vcpkg_download_distfile(
     URLS "https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/${PORT}-${VERSION}.tar.gz"
          "https://ftp.fau.de/openbsd/LibreSSL/${PORT}-${VERSION}.tar.gz"
     FILENAME "${PORT}-${VERSION}.tar.gz"
-    SHA512 8fc81e05d1c9f9259d06508ca97d5a1ba5d46b857088c273c20e6b242921f7eac58a1136564ad9831c923758ee63f7b0897c8c6c7b1e53ab8132a995cc559aeb
+    SHA512 b7cd1c86e3164f29d9bf50ace850c984683b7e37c09df87ec43f59e92f39e4d36f7ddfabd9c2cc8dc0f3013322c8f5be8a1b443aae85b6e816af81674dd75f82
 )
 
 vcpkg_extract_source_archive(
@@ -35,6 +35,8 @@ vcpkg_cmake_configure(
 )
 
 vcpkg_cmake_install()
+
+vcpkg_cmake_config_fixup(CONFIG_PATH "lib/cmake/LibreSSL")
 
 if("tools" IN_LIST FEATURES)
     vcpkg_copy_tools(TOOL_NAMES ocspcheck openssl DESTINATION "${CURRENT_PACKAGES_DIR}/tools/openssl" AUTO_CLEAN)
